@@ -1,0 +1,2 @@
+/usr/bin/ar qc libLOCATECommon.a  CMakeFiles/LOCATECommon.dir/amcl_gl.cpp.o CMakeFiles/LOCATECommon.dir/carto.cpp.o CMakeFiles/LOCATECommon.dir/location.cpp.o CMakeFiles/LOCATECommon.dir/pallet_recgnize.cpp.o CMakeFiles/LOCATECommon.dir/pose_correct.cpp.o CMakeFiles/LOCATECommon.dir/scan_matching.cpp.o
+/usr/bin/ranlib libLOCATECommon.a

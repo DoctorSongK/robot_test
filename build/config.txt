@@ -1,0 +1,250 @@
+
+agv:
+    size_x                      float  0.9
+    size_y                      float  0.6
+        robot_length                      float  0.62
+        robot_width                       float  0.58
+        robot_height                      float  0.2
+
+
+network:
+    local_port                  int     12345
+    agv_id                      int     1
+    num_threads                 int     30
+
+carto:
+    config_files_dir            string  "/home/carto_config"
+    config_file_name            string  "mapping_imu.lua"
+    radar_scan_time             float   0.02      #雷达扫描一次用的时间
+    pose_matching_score         float   0.95        #cartographer返回位姿的可信度
+    paint_map_period_us         long    2000000     #更新地图的时间间隔
+    skip_odometer_data          int     5
+
+map:
+    occupied_threshold          float   0.6
+    landmark_map_resolution     float   0.01    #反射板地图分辨率0.01->0.1
+    landmark_map_binarilize_threshold float   0.8
+    landmark_radar_data_accumulated     int 10  #略过一部分反射板数据
+    
+
+odom:    #unused
+    expolate_threshold_us       long    500000      #两帧传感器数据的最大间隔时间
+    expolate_imu_threshold_us   long    250000  #两帧imu数据的最大间隔时间
+    data_interna_threshold_us   long    30000000    #相邻传感器数据间的最大间隔时间
+    reverse_wheel_sensor        bool    0
+    
+    robot_control_model          int     1      #机器人控制模型0-差分 5-双舵轮  
+    encoder_per_round            float        89947      #小车89947 300kg-200000  双舵轮-345686
+    encoder_per_round_r          float        10485760      #  双舵轮偏摆轮单圈脉冲-10485760
+    wheel_diameter               float        0.144        #小车-144 300kg-18225  双舵轮-250
+    wheel_distance               float        0.508      #小车-500 300kg-600  双舵轮-0.0  
+    axis_distance_f              float   0.91   #双舵轮轴距-910
+    axis_distance_b              float   0.91   #双舵轮轴距-910
+    alpha_a                      float   0.0   #双舵轮前轮与中心夹角-0.0
+    alpha_b                      float   0.0   #双舵轮后轮与中心夹角-0.0
+    axis_reduce                  float   9   #对应轮子的减速比 300kg-20 小车9
+
+device:
+    odom_dev_name                string  "/dev/agv_odom"
+    odom_baudrate                int     115200
+    move_dev_name                string  "/dev/agv_wheel"
+    move_baudrate                int     9600
+    nav_dev_name                 string  "/dev/agv_nav"
+    nav_baudrate                 int     9600
+imu:
+    dev_name	                 string	"/dev/ttyTHS2"
+    imu_baudrate                 int     115200
+    commu_type	                 string	"standard"
+
+
+radar:
+    use_radar_type               int     1    #0为2D-sick雷达，1为3D-robosense雷达
+    radar_enable                 int     1
+    radar_ip                     string  192.168.192.220
+    radar_port                   int     2112
+    intensity_threshold          float   0.5     #反射强度大于此的标为反光板
+    radar_position_x             float   0.20
+    radar_position_y             float   0
+    radar_position_theta         float   0       #未使用
+    point_number                 int     541
+    first_point_index            int     0 #60 0
+    last_point_index             int     720 #480 540
+    inverse_install              int     0
+
+     #3Dradar
+    installation_position_x      float   0.20
+    installation_position_y      float   0.0
+    installation_position_z      float   0.339
+    installation_position_theta  float   0.0 #暂时没用，等到标定后再用
+    min_height                   float  -0.2 #-0.265(这边建图的时候可能会出现打到地上的点，因为坐标计算的问题，就会返回好多地面点)
+    max_height                   float  0.2 #0.265
+    angle_min                    float  3.14 #-pi,这里的夹角是和y轴的夹角，雷达坐标系y坐标系朝前3.925
+    angle_max                    float  3.14 #pi 2.355
+    angle_increment              float  0.5 #degree
+    range_min                    float  0.1
+    range_max                    float  15
+    use_intensity                bool    1
+    use_inf                      bool    1
+    use_voxel_filter             bool    1
+    use_statistical_filter       bool    1
+    use_3D_to_2D_lidar           bool    1
+    use_remove_ground            bool    1
+
+    collision_distance_level1x	float	0.6
+    collision_distance_level1y	float	0.3
+    collision_distance_level2x	float	0.7
+    collision_distance_level2y	float	0.4
+    collision_distance_level3x	float	1.0
+    collision_distance_level3y	float	0.4
+    collision_threshold		int 	7
+    
+#	-y----0-----y	
+#	-	-	-	-	|
+#	'			'	x
+#	'			'	|
+#	|-----O-----|	|
+#	|	 AGV	|
+#	|			|
+
+
+scan_matching:
+    occupied_space_cost_factor      float   1   #地图匹配的损失权重
+    translation_delta_cost_factor   float   10  #位姿移动的损失权重
+    rotation_delta_cost_factor      float   10  #位姿旋转的损失权重
+    max_num_iterations              int     10  #单次优化最大迭代次数
+    num_threads                     int     2
+    min_distance                    float   0               #过近/过远的点不参与scan matching
+    max_distance                    float   15
+#匹配反射板地图时的参数
+landmark_scan_matching:
+    point_rate                    float   0.005        #反光板的点比例达到一定程度后启动反光板匹配
+    point_angle                   float   20.0        #反光板的点角度达到一定程度后启动反光板匹配
+    min_distance                  float   0
+    max_distance                  float   7
+    occupied_space_cost_factor    float   1
+    translation_delta_cost_factor float   10
+    rotation_delta_cost_factor    float   10
+    max_num_iterations            int     10  
+    num_threads                   int     2
+
+    multi_landmark_detect         int    3        #检测到多个反光板直接使用反光板进行定位
+    landmark_detect_range         int     5       #连续的高反射率点会被当成反光板
+	
+
+global_locating:
+    grid_resolution                float   0.5
+    particles_per_grid             int     5 #5->2
+    rotation_sample_count          int     9 #8->10
+    rotation_speed                 int     -100  #全局定位时旋转的速度
+    rotation_time_s                int     77   #全局定位时旋转的时间
+    rotation_message_frequency_us  long    1000000  #发送旋转指令的时间间隔
+    simulate_radar_data_size       int     600 #模拟点云数据中点的个数
+    simulate_radar_range           float   19   #模拟点云扫描的距离范围
+
+    occupied_space_cost_factor     float   1
+    translation_delta_cost_factor  float   5
+    rotation_delta_cost_factor     float   10
+    max_num_iterations             int     5
+    num_threads                    int     2
+    min_distance                   float   0
+    max_distance                   float   5
+    
+    iterations_count                int     10  #全局定位执行的轮数 #unused
+    remove_unreachable_particles    bool    1    #每轮迭代时移除落在墙里的粒子
+    dbscan_min_point_num            int     4   #unused
+    dbscan_epsilon                  float   0.5   #unused
+#	wheel_diameter		            int		180
+#	wheel_distance		            int		600
+	
+    encoder_per_round	            float		200000
+    wheel_diameter		            float		180
+    wheel_distance		            float		600.0
+
+motecarlo:
+    particle_num                    int     2048    #unused
+    variance_x                      float   0.5     #unused
+    variance_y                      float   0.5     #unused
+    variance_theta                  float   1.0     #unused
+    min_particle_num                int     2048     #粒子数小于此值时重采样#unused
+    landmark_point_rate             float   0.02    #反光板的点比例达到一定程度后启动反光板匹配
+    landmark_weight                 float   0.5
+    random_sample_num               int     1024     #重采样时加入的随机粒子数#unused
+    min_score                       float   0.2     #删除得分小于此值的粒子#unused
+    result_grid_size                float   0.05    #unused
+
+corner_detect:
+    threshold_value                  int 130
+    block_size                       int 3     #领域尺寸
+    ksize                            int 3     #口径尺寸
+    k_harris                         float 0.04 #Harris 参数
+
+distance_map:
+    range                            int     5
+two_dimention_code:
+    locate_enable                    int        0
+    locate_ip                        string     192.168.192.221
+    locate_port                      int        3000
+    locate_fixang                    float      0.0
+    second_enable                    int        0
+    second_ip                        string     192.168.192.222
+    second_port                      int        3000
+    second_fixang                    float      0.0
+    second_max_val                   float      0.5
+move_para:
+    acc                              float      0.3
+    dec                              float      0.3
+    angle_acc                        float      0.31
+    angle_dec                        float      0.31
+    line_vel                         float      1.0
+    angle_vel                        float      0.4
+    slow_dis                         float      0.27
+    slow_rotate                      float      0.1   
+    ang_p                            float      1.0
+
+io_board:
+    isolate_can                      int        1
+    io_enable                        int        0  
+    voice_volume                     int        12 
+lift:
+    height                           float      0.3
+    max_height                       float      0.45
+battery:
+    warning_low                      int        10
+antiepidemic:
+    anti_enable                      int        0
+    first_route                      int        300
+    second_route                     int        301
+    start_index                      int        300
+    total_num                        int        100
+    anti_speed                       float      0.2
+    secd_delay                       int        900
+obavoid_3d:
+    enable_obavoid                   int        1 
+    enable_speed_compensation        int        1 #开启速度补偿
+    use_intensity                    int        0 #是否使用激光能量值
+    use_voxel_filter                 int        0 #是否应用体素率波
+    use_statistical_filter           int        0 #是否应用统计滤波
+    use_remove_ground                int        1 #是否需要地面点去除
+    obavoid_strategy                 int        2 #normal,front_back_self_adaption,all_self_adaption 正常避障，前后自适应避障，前后左右自适应避障（枚举从0开始）
+    obavoid_region                   int        4 #front_rec,front_sector,front_back_rec,front_back_sector,rec_and_rec,rec_and_sector 前矩形避障，前扇形避障，前后矩形避障，前后扇形避障，四周矩形避障，前后扇形左右矩形避障
+    range_min_                       float      0.1
+    range_max_                       float      4.0
+    max_height_pc                    float      1.0
+
+    judge_threshold                  float      0.4 #0.6
+    collision_threshold              int        50
+    
+    radar_driver_angle               float      0.18;
+    concentric_divider_distance_     float      0.01;
+    local_max_slope_                 float      6
+    general_max_slope_               float      4
+    min_height_threshold_            float      0.05
+    reclass_distance_threshold_      float      0.2
+    region_width                     float      1.5
+    region_length                    float      1.5
+   
+    
+    
+    
+
+        
